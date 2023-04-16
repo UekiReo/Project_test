@@ -56,11 +56,13 @@ std::string ConvertString(const std::wstring& str)
 	return result;
 }
 
-void Log(const std::string& message) {
+void Log(const std::string& message) 
+{
 	OutputDebugStringA(message.c_str());
 }
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) 
+{
 	OutputDebugStringA("Hello,DirectX!!\n");
 
 	//ウィンドウサイズ
@@ -101,6 +103,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// HRESULTはWindow系のエラーコードであり
 	//関数が成功したかどうかをSUCCEEDEDマクロで判定出来る
 	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory));
+
 	//初期化の根本的な部分でエラーが出た場合はプログラムが間違っているか、どうにも出来ない場合が多いのでassertにしておく
 	assert(SUCCEEDED(hr));
 	//使用するアダプタ用の変数。最初にnullptrを入れておく
@@ -108,13 +111,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//良い順にアダプタを頼む
 	for (UINT i = 0; dxgiFactory->EnumAdapterByGpuPreference(i,
 		DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter)) !=
-		DXGI_ERROR_NOT_FOUND; ++i) {
+		DXGI_ERROR_NOT_FOUND; ++i) 
+	{
 		//アダプターの情報を取得する
 		DXGI_ADAPTER_DESC3 adapterDesc{};
 		hr = useAdapter->GetDesc3(&adapterDesc);
 		assert(SUCCEEDED(hr));//取得出来ないのは一大事
 		//ソフトウェアアダプタでなければ採用
-		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
+		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) 
+		{
 			//採用したアダプタの情報をログに出力。wstringの方なので注意
 			Log(ConvertString(std::format(L"Use Adapter:{}\n", adapterDesc.Description)));
 			break;
@@ -124,6 +129,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//適切なアダプタが見つからなかったので起動できない
 	assert(useAdapter != nullptr);
 
+
+
 	ID3D12Device* device = nullptr;
 	//機能レベルとログ出力用の文字列
 	D3D_FEATURE_LEVEL featureLevels[] = {
@@ -131,11 +138,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 	const char* featureLevelStrings[] = { "12.2","12.1","12.0" };
 	//高い順に生成できるか試していく
-	for (size_t i = 0; i < _countof(featureLevels); ++i) {
+	for (size_t i = 0; i < _countof(featureLevels); ++i) 
+	{
 		//採用したアダプターでデバイスを生成
 		hr = D3D12CreateDevice(useAdapter, featureLevels[i], IID_PPV_ARGS(&device));
 		//指定した機能レベルでデバイスが生成出来たかを確認
-		if (SUCCEEDED(hr)) {
+		if (SUCCEEDED(hr)) 
+		{
 			//生成出来たのでログ出力を行ってループを抜ける
 			Log(std::format("FeatureLevel : {}\n", featureLevelStrings[i]));
 			break;
@@ -149,23 +158,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ウィンドウの×ボタンが押されるまでループ
 	while (msg.message != WM_QUIT) {
 		//Windowにメッセージが来てたら最優先で処理させる
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
+		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else {
+		else 
+		{
 			//ゲームの処理
 		}
 	}
-	////文字列を格納する
-	//std::string str0{ "STRING!!!" };
-	////整数を文字列にする
-	//std::string str1{ std::to_string(10) };
-	//
-	//Log(std::format("('Д'):{}\n", str0));
-	//Log(std::format("string:{}\n", str1));
-
-
 
 	return 0;
 }
